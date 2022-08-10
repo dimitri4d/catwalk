@@ -4,16 +4,17 @@ import {
   near,
   call,
   view,
-  LookupMap,
+  UnorderedMap,
+  assert,
 } from "near-sdk-js";
 
 const STORAGE_COST: bigint = BigInt("1000000000000000000000");
 
 interface Transactions {
   transactionId: string; //transactions unique identifiyer
-  balance: BigInt; //total amount that remains for transaction
+  balance: string; //total amount that remains for transaction
   frequency: number; //specify how often(block height?)
-  payoutAmount: BigInt; //amount per each interval
+  payoutAmount: string; //amount per each interval
   payoutAddress: string; //where the funds are going
   nextPayoutDate: number; //block of next payout
   isActive: boolean; //is the transaction active, pausable
@@ -21,9 +22,9 @@ interface Transactions {
 }
 class Transaction {
   transactionId: string; //transactions unique identifiyer
-  balance: BigInt; //total amount that remains for transaction
+  balance: string; //total amount that remains for transaction
   frequency: number; //specify how often(block height?)
-  payoutAmount: BigInt; //amount per each interval
+  payoutAmount: string; //amount per each interval
   payoutAddress: string; //where the funds are going
   nextPayoutDate: string; //block of next payout
   isActive: boolean; //is the transaction active, pausable
@@ -58,29 +59,28 @@ function addSeconds(numOfSeconds, date = new Date()) {
 // The @NearBindgen decorator allows this code to compile to Base64.
 @NearBindgen
 class Catwalk extends NearContract {
-  transactions: LookupMap;
+  transactions: UnorderedMap;
 
   constructor() {
     //execute the NEAR Contract's constructor
     super();
-    this.transactions = new LookupMap("a");
+    this.transactions = new UnorderedMap("map-uid-1");
   }
 
   default() {
     return new Catwalk();
   }
 
-  // transactionId: string; //transactions unique identifiyer
-  // balance: BigInt; //total amount that remains for transaction
-  // frequency: number; //specify how often(block height?)
-  // payoutAmount: BigInt; //amount per each interval
-  // payoutAddress: string; //where the funds are going
-  // nextPayoutDate: number; //block of next payout
-  // isActive: boolean; //is the transaction active, pausable
-  // ownerAccount: string; //owner of the funds for the transaction object
-
   @call
-  deposit({ frequency, payoutAmount, payoutAddress }): void {
+  deposit({
+    frequency,
+    payoutAmount,
+    payoutAddress,
+  }: {
+    frequency: number;
+    payoutAmount: number;
+    payoutAddress: string;
+  }) {
     let ownerAccount = near.predecessorAccountId();
     let balance: bigint = near.attachedDeposit() as bigint;
     let isActive = true;
@@ -89,45 +89,62 @@ class Catwalk extends NearContract {
     let transactionId = `${new Date()}`;
     let nextPayoutDate = `${addSeconds(30)}`;
 
+    let toTransfer = balance;
+
+    // register balance lets register it, which increases storage
+
+    assert(balance > STORAGE_COST, `Attach at least ${STORAGE_COST} yoctoNEAR`);
+
+    // Subtract the storage cost to the amount to transfer
+    toTransfer -= STORAGE_COST;
+
     let deposit = new Transaction({
       transactionId,
-      balance,
+      balance: balance.toString(),
       frequency,
-      payoutAmount,
+      payoutAmount: payoutAmount.toString(),
       payoutAddress,
       nextPayoutDate,
       isActive,
       ownerAccount,
     });
 
-    near.log(
-      `addTransaction() called, name: ${transactionId}, specs: ${JSON.stringify(
-        deposit
-      )}`
-    );
+    near.log(`addTransaction() called, name: ${transactionId}`);
 
     this.transactions.set(transactionId, deposit);
-    near.log(`Saving Transaction ${deposit}`);
+    near.log(`Saving Transaction ${JSON.stringify(deposit)}`);
+
+    return deposit;
+  }
+
+  @view
+  getTransactionById({ transactionId }: { transactionId: string }) {
+    return this.transactions.get(transactionId);
   }
 
   //
-  //   @call
-  //   transfer({ to, amount }: { to: string, amount: BigInt }) {
-  //     let promise = near.promiseBatchCreate(to)
-  //     near.promiseBatchActionTransfer(promise, amount)
-  //   }
+  @call
+  transfer({ transactionId }: { transactionId: string }) {
+    const transaction = this.transactions.get(transactionId) as Transaction;
+    near.log(`Transaction ${JSON.stringify(transaction)}`);
 
-  // @view indicates a 'view method' or a function that returns
-  // the current values stored on the blockchain. View calls are free
-  // and do not cost gas.
+    let to = transaction.payoutAddress;
+    let amount = transaction.payoutAmount;
 
-  // @view
-  // getTransactions(): LookupMap {
-  //   near.log(`The current greeting is ${this.transactions}`);
-  //   return this.transactions;
-  // }
+    // : string = this.donations.keys.get(i) as string
 
-  // @call indicates that this is a 'change method' or a function
-  // that changes state on the blockchain. Change methods cost gas.
-  // For more info -> https://docs.near.org/docs/concepts/gas
+    let promise = near.promiseBatchCreate(to);
+    near.promiseBatchActionTransfer(promise, BigInt(amount));
+  }
+
+  @view
+  totalTransactions() {
+    return this.transactions.len();
+  }
+
+  @view
+  getTransactions(): UnorderedMap {
+    near.log(`transactions list ${this.transactions}`);
+    return this.transactions;
+  }
 }

@@ -26,9 +26,9 @@ export async function initContract() {
     nearConfig.contractName,
     {
       // View methods are read only. They don't modify the state, but usually return some value.
-      viewMethods: ["get_greeting"],
+      // viewMethods: ["get_greeting"],
       // Change methods can modify the state. But you don't receive the returned value when called.
-      changeMethods: ["set_greeting"],
+      changeMethods: ["deposit", "transfer"],
     }
   );
 }
@@ -66,13 +66,13 @@ export async function setTransaction(
   frequency,
   payoutAddress
 ) {
-  let response = await window.contract.set_greeting({
-    args: { message: address },
-  });
-  // let response = await window.contract.Catwalk({
-  //   args: { frequency, payoutAmount, payoutAddress },
-  //   gas, // attached GAS (optional)
-  //   amount, // attached deposit in yoctoNEAR (optional)
+  // let response = await window.contract.set_greeting({
+  //   args: { message: address },
   // });
+  let response = await window.contract.deposit({
+    args: { frequency, payoutAmount, payoutAddress },
+    gas, // attached GAS (optional)
+    amount, // attached deposit in yoctoNEAR (optional)
+  });
   return response;
 }
