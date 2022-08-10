@@ -59,12 +59,18 @@ export async function getGreetingFromContract() {
   return greeting;
 }
 
-export async function setTransaction(amount, gas, frequency, address) {
+export async function setTransaction(
+  amount,
+  gas,
+  payoutAmount,
+  frequency,
+  payoutAddress
+) {
   let response = await window.contract.set_greeting({
     args: { message: address },
   });
-  // let response = await window.contract.set_transaction({
-  //   args: { frequency },
+  // let response = await window.contract.Catwalk({
+  //   args: { frequency, payoutAmount, payoutAddress },
   //   gas, // attached GAS (optional)
   //   amount, // attached deposit in yoctoNEAR (optional)
   // });

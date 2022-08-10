@@ -12,13 +12,15 @@ const BLOCK_FREQUENCY = 1;
 export default function App() {
   const [formValues, setFormValues] = React.useState({
     amount: 0,
-    frequency: 0,
+    payout: 0,
+    frequency: BLOCK_FREQUENCY,
     address: "",
   });
 
   const isValidForm = React.useMemo(() => {
     if (
       formValues.amount === 0 ||
+      formValues.payout > formValues.amount ||
       formValues.frequency === 0 ||
       formValues.address === ""
     )
@@ -34,6 +36,7 @@ export default function App() {
       setTransaction(
         formValues.amount,
         BOATLOAD_OF_GAS,
+        formValues.payout,
         formValues.frequency,
         formValues.address
       );
@@ -46,7 +49,7 @@ export default function App() {
       <main>
         <h1>Catwalk</h1>
         <form onSubmit={handleSubmit} className="change">
-          <label htmlFor="amountInput">Amount:</label>
+          <label htmlFor="amountInput">Deposit Amount:</label>
           <div style={{ marginBottom: "10px" }}>
             <input
               type="number"
@@ -60,7 +63,21 @@ export default function App() {
               }
             />
           </div>
-          <label htmlFor="frequencyInput">Frequency:</label>
+          <label htmlFor="payoutInput">Payout Amount:</label>
+          <div style={{ marginBottom: "10px" }}>
+            <input
+              type="number"
+              id="payoutInput"
+              value={formValues.payout}
+              onChange={(e) =>
+                setFormValues({
+                  ...formValues,
+                  payout: e.target.value ? parseInt(e.target.value) : 0,
+                })
+              }
+            />
+          </div>
+          <label htmlFor="frequencyInput">Payout Frequency:</label>
           <div style={{ marginBottom: "10px" }}>
             <select
               style={{
