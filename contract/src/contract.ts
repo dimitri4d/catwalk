@@ -7,13 +7,11 @@ import {
   LookupMap,
 } from "near-sdk-js";
 
-const STORAGE_COST: bigint = BigInt("1000000000000000000000");
-
 interface Transactions {
   transactionId: string; //transactions unique identifiyer
-  balance: BigInt; //total amount that remains for transaction
+  balance: string; //total amount that remains for transaction
   frequency: number; //specify how often(block height?)
-  payoutAmount: BigInt; //amount per each interval
+  payoutAmount: string; //amount per each interval
   payoutAddress: string; //where the funds are going
   nextPayoutDate: number; //block of next payout
   isActive: boolean; //is the transaction active, pausable
@@ -21,9 +19,9 @@ interface Transactions {
 }
 class Transaction {
   transactionId: string; //transactions unique identifiyer
-  balance: BigInt; //total amount that remains for transaction
+  balance: string; //total amount that remains for transaction
   frequency: number; //specify how often(block height?)
-  payoutAmount: BigInt; //amount per each interval
+  payoutAmount: string; //amount per each interval
   payoutAddress: string; //where the funds are going
   nextPayoutDate: string; //block of next payout
   isActive: boolean; //is the transaction active, pausable
@@ -91,9 +89,9 @@ class Catwalk extends NearContract {
 
     let deposit = new Transaction({
       transactionId,
-      balance,
+      balance: balance.toString(),
       frequency,
-      payoutAmount,
+      payoutAmount: payoutAmount.toString(),
       payoutAddress,
       nextPayoutDate,
       isActive,
