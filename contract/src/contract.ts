@@ -93,7 +93,7 @@ class Catwalk extends NearContract {
 
     // register balance lets register it, which increases storage
 
-    assert(balance > STORAGE_COST, `Attach at least ${STORAGE_COST} yoctoNEAR`);
+    // assert(balance > STORAGE_COST, `Attach at least ${STORAGE_COST} yoctoNEAR`);
 
     // Subtract the storage cost to the amount to transfer
     toTransfer -= STORAGE_COST;
@@ -112,7 +112,11 @@ class Catwalk extends NearContract {
     near.log(`addTransaction() called, name: ${transactionId}`);
 
     this.transactions.set(transactionId, deposit);
-    near.log(`Saving Transaction ${JSON.stringify(deposit)}`);
+    near.log(
+      `Saving Transaction ${JSON.stringify(
+        this.transactions.get(transactionId)
+      )}`
+    );
 
     return deposit;
   }

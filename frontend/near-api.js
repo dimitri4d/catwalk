@@ -69,10 +69,25 @@ export async function setTransaction(
   // let response = await window.contract.set_greeting({
   //   args: { message: address },
   // });
+
+  console.log("amount: -------", amount);
+
   let response = await window.contract.deposit({
     args: { frequency, payoutAmount, payoutAddress },
     gas, // attached GAS (optional)
     amount, // attached deposit in yoctoNEAR (optional)
+  });
+  return response;
+}
+
+export async function transfer(transactionId) {
+  // let response = await window.contract.set_greeting({
+  //   args: { message: address },
+  // });
+  let response = await window.contract.transfer({
+    args: { transactionId: "Thu Jan 01 1970 00:00:00 GMT+0000" },
+    // gas, // attached GAS (optional)
+    // amount, // attached deposit in yoctoNEAR (optional)
   });
   return response;
 }

@@ -98,8 +98,10 @@ test("Payout", async (t) => {
   console.log("transfer: ", transfer);
 
   const balance2 = await alice.balance();
-  const available2 = parseFloat(balance.available.toHuman());
-  console.log("root.availableBalance: after", available2);
+  const available2 = parseFloat(balance2.available.toHuman());
+
+  console.log("catwalk.availableBalance: before ", available);
+  console.log("catwalk.availableBalance: after", available2);
   // const transactions = await contract.view("totalTransactions", {});
   // t.is(transactions, 1);
 });

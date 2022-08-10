@@ -3,7 +3,7 @@ import React from "react";
 
 import "./assets/global.css";
 
-import { setTransaction } from "./near-api";
+import { setTransaction, transfer } from "./near-api";
 import { SignInPrompt, SignOutButton } from "./ui-components";
 
 const BOATLOAD_OF_GAS = 300000000000000;
@@ -128,6 +128,8 @@ export default function App() {
           )}
         </form>
       </main>
+
+      <button onClick={() => transfer()} />
     </>
   );
 }
